@@ -1,55 +1,51 @@
 import { galleryItems } from './gallery-items.js';
-// Change code below this line
 
-console.log(galleryItems);
+document.addEventListener('DOMContentLoaded', function () {
+  const gallery = document.querySelector('.gallery');
 
-const galleryList = document.querySelector(".gallery");
-galleryList.addEventListener("click",onClickGallery);
-setGalleryHtml("beforeend", galleryElCreateMarkup(galleryItems));
+  function createGalleryItem(item) {
+    const galleryItem = document.createElement('li');
+    galleryItem.classList.add('gallery__item');
 
-function onClickGallery(evt) {
- evt.preventDefault();
- if (evt.target.nodeName !== "IMG"){
-     return ;
- }
- openFullImages(evt.target.dataset.source);
-}
+    const link = document.createElement('a');
+    link.classList.add('gallery__link');
+    link.href = item.original;
 
-function galleryElCreateMarkup(galleryItems){
-    return galleryItems
-    .map(({ preview,original,description}) => {
-       return `<li class = "gallery__item">
-              <a class ="gallery__link">
-              <img
-              class ="gallery__image"
-              src="${preview}"
-              data-source="${original}"
-              alt="${description}"
-              />
-              </a>
-       </li>`;
-    })
-    .join("");
-}
+    const image = document.createElement('img');
+    image.classList.add('gallery__image');
+    image.src = item.preview;
+    image.alt = item.description;
+    image.setAttribute('data-source', item.original);
 
-function setGalleryHtml(place, gallery){
-    galleryList.insertAdjacentHTML(place, gallery);
-}
+    link.appendChild(image);
+    galleryItem.appendChild(link);
 
-function openFullImages(target){
-    const instance  = basicLightbox.create(`<img src="${target}"  width="800" height="600">`,{
-        onShow:(instance) =>
-        console.log(`keydown`,onCloseEscape),
-        onClose:(instance) =>
-        console.log(`keydown`,onCloseEscape)
-    });
-    instance.show();
-    console.dir(instance);
-   function onCloseEscape(evt) {
-        if (evt.code === "Escape") {
-        instance.close();
+    return galleryItem;
+  }
+
+  function openModal(event) {
+    event.preventDefault();
+
+    if (event.target.classList.contains('gallery__image')) {
+      const largeImageURL = event.target.dataset.source;
+      const instance = basicLightbox.create(`<img src="${largeImageURL}" width="1800" height="1600">`);
+      instance.show();
+
+      document.addEventListener('keydown', closeModalOnEscape);
+
+      function closeModalOnEscape(event) {
+        if (event.key === 'Escape') {
+          instance.close();
+          document.removeEventListener('keydown', closeModalOnEscape);
         }
-        };
-    
-}
-console.log(galleryItems);
+      }
+    }
+  }
+
+  galleryItems.forEach(item => {
+    const galleryItem = createGalleryItem(item);
+    gallery.appendChild(galleryItem);
+  });
+
+  gallery.addEventListener('click', openModal);
+});
