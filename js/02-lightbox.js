@@ -32,6 +32,6 @@ document.addEventListener('DOMContentLoaded', function () {
       {
         captionsData: 'alt',
         captions: true, 
-        fadeSpeed: 250,
+        captionDelay: 250,
     });
 });
